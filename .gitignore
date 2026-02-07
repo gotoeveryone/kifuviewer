@@ -1,0 +1,34 @@
+# macOS
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Node / frontend
+node_modules/
+dist/
+.vite/
+.svelte-kit/
+coverage/
+
+# Tauri / Rust
+src-tauri/target/
+src-tauri/gen/
+
+# Editor / IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# mise
+mise.toml
