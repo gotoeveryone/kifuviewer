@@ -6,7 +6,7 @@
   import InfoPanel from "./lib/components/InfoPanel.svelte";
   import VariationPanel from "./lib/components/VariationPanel.svelte";
   import logoKifu from "./lib/assets/logo-kifu.svg";
-  import { openSgfFile, pickSgfFile, saveSgfTextFile } from "./lib/tauri/commands";
+  import { openSgfFile, pickSaveSgfFile, pickSgfFile, saveSgfTextFile } from "./lib/tauri/commands";
   import { serializeSgfCollection } from "./lib/sgf/serializer";
   import { canonicalSgf, createEmptyCollection, currentFilePath, ensureCollection, isDirty, setCollection } from "./lib/stores/sgf";
   import { goToStart } from "./lib/stores/playback";
@@ -45,16 +45,22 @@
 
   const onSaveClick = async () => {
     try {
-      if (!$currentFilePath) {
-        setUiError("保存先がありません。既存のSGFを開いてから保存してください。");
-        return;
-      }
-
       const collection = ensureCollection();
       const sgfText = serializeSgfCollection(collection);
-      await saveSgfTextFile($currentFilePath, sgfText);
+      let savePath = $currentFilePath;
+      if (!savePath) {
+        const picked = await pickSaveSgfFile();
+        if (!picked) {
+          return;
+        }
+        savePath = picked;
+        currentFilePath.set(savePath);
+        openedName = basename(savePath);
+      }
+
+      await saveSgfTextFile(savePath, sgfText);
       isDirty.set(false);
-      setUiInfo(`保存成功: ${basename($currentFilePath)}`);
+      setUiInfo(`保存成功: ${basename(savePath)}`);
     } catch (error) {
       setUiError(`保存失敗: ${String(error)}`);
     }

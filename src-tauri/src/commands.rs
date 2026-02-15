@@ -16,6 +16,17 @@ pub fn pick_sgf_file() -> Result<Option<String>, String> {
 }
 
 #[tauri::command]
+pub fn pick_save_sgf_file() -> Result<Option<String>, String> {
+    let file = FileDialog::new()
+        .add_filter("SGF", &["sgf"])
+        .set_title("Save SGF file")
+        .set_file_name("game.sgf")
+        .save_file();
+
+    Ok(file.map(|p| p.to_string_lossy().to_string()))
+}
+
+#[tauri::command]
 pub fn open_sgf_file(path: String) -> Result<SgfCollection, String> {
     let content = fs::read_to_string(&path).map_err(|e| format!("failed to read file: {e}"))?;
     parse_sgf_collection(&content).map_err(|e| e.to_string())

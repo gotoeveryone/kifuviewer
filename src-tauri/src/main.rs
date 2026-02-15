@@ -15,6 +15,7 @@ fn main() {
         })
         .invoke_handler(tauri::generate_handler![
             go_kifu_viewer_lib::commands::pick_sgf_file,
+            go_kifu_viewer_lib::commands::pick_save_sgf_file,
             go_kifu_viewer_lib::commands::open_sgf_file,
             go_kifu_viewer_lib::commands::save_sgf_text_file,
             go_kifu_viewer_lib::commands::validate_sgf,

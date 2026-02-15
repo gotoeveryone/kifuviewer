@@ -123,6 +123,12 @@ export const appendMoveAtPath = (path: number[], coord: string): AppendMoveResul
       return working;
     }
 
+    // New moves are allowed only when the current node is the end of line.
+    if (node.children.length > 0) {
+      result = { path, error: "最終手まで進んでから着手してください。" };
+      return working;
+    }
+
     const lastColor = getLastMoveColor(root, path);
     const nextColor = lastColor === "B" ? "W" : "B";
 

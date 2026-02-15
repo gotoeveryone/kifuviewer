@@ -179,9 +179,18 @@
     hoverPoint = toBoardPoint(event);
   };
 
+  const hasStoneAt = (point: Point): boolean => {
+    return $boardState.stones.some((stone) => stone.point?.x === point.x && stone.point?.y === point.y);
+  };
+
   const onCanvasClick = (event: MouseEvent) => {
     const point = toBoardPoint(event);
     if (!point) {
+      return;
+    }
+
+    if (hasStoneAt(point)) {
+      setUiError("その点にはすでに石があります。");
       return;
     }
 
