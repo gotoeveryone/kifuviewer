@@ -1,7 +1,7 @@
 :root {
   font-family: "Noto Sans JP", sans-serif;
   color: #111827;
-  background: #f8fafc;
+  background: #1b2435;
 }
 
 * {
@@ -10,6 +10,11 @@
 
 body {
   margin: 0;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(56, 189, 248, 0.14), transparent 35%),
+    radial-gradient(circle at 90% 20%, rgba(148, 163, 184, 0.14), transparent 40%),
+    linear-gradient(160deg, #172033 0%, #1f2937 55%, #111827 100%);
+  color: #e5e7eb;
 }
 
 .app {
@@ -25,10 +30,12 @@ body {
 }
 
 .panel {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: rgba(30, 41, 59, 0.88);
+  border: 1px solid #475569;
   border-radius: 12px;
   padding: 12px;
+  color: #e5e7eb;
+  box-shadow: 0 8px 24px rgba(2, 6, 23, 0.35);
 }
 
 .toolbar {
@@ -60,24 +67,25 @@ body {
 
 .titles strong {
   font-size: 13px;
-  color: #1f2937;
+  color: #e5e7eb;
 }
 
 .titles span {
   font-size: 11px;
-  color: #6b7280;
+  color: #94a3b8;
 }
 
 .toolbar button {
-  border: 1px solid #d1d5db;
-  background: #f9fafb;
+  border: 1px solid #64748b;
+  background: #334155;
+  color: #e5e7eb;
   border-radius: 8px;
   padding: 7px 12px;
   cursor: pointer;
 }
 
 .toolbar button:hover {
-  background: #f3f4f6;
+  background: #475569;
 }
 
 .hidden-file {
@@ -86,7 +94,7 @@ body {
 
 .meta {
   font-size: 12px;
-  color: #6b7280;
+  color: #cbd5e1;
 }
 
 .status {
@@ -113,7 +121,7 @@ body {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.35);
+  background: rgba(2, 6, 23, 0.62);
   display: grid;
   place-items: center;
   z-index: 1000;
@@ -130,13 +138,13 @@ body {
   margin: 0;
   font-size: 16px;
   font-weight: 700;
-  color: #111827;
+  color: #e5e7eb;
 }
 
 .modal-text {
   margin: 0;
   font-size: 14px;
-  color: #4b5563;
+  color: #94a3b8;
 }
 
 .modal-actions {
@@ -146,17 +154,26 @@ body {
 }
 
 .modal-actions button {
-  border: 1px solid #d1d5db;
-  background: #f9fafb;
+  border: 1px solid #475569;
+  background: #1f2937;
+  color: #e5e7eb;
   border-radius: 8px;
   padding: 7px 12px;
   cursor: pointer;
 }
 
+.modal-actions button:hover {
+  background: #334155;
+}
+
 .modal-actions .danger {
-  border-color: #fca5a5;
-  background: #fee2e2;
-  color: #991b1b;
+  border-color: #b91c1c;
+  background: #3f1d1d;
+  color: #fecaca;
+}
+
+.modal-actions .danger:hover {
+  background: #522727;
 }
 
 @media (max-width: 960px) {

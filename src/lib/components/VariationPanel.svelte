@@ -29,7 +29,7 @@
   h2 {
     margin: 0;
     font-size: 14px;
-    color: #374151;
+    color: #e5e7eb;
   }
 
   ul {
@@ -43,14 +43,15 @@
   button {
     width: 100%;
     text-align: left;
-    border: 1px solid #d1d5db;
-    background: #f9fafb;
+    border: 1px solid #475569;
+    background: #1f2937;
+    color: #e5e7eb;
     border-radius: 8px;
     padding: 8px;
     cursor: pointer;
   }
 
   button:hover {
-    background: #f3f4f6;
+    background: #334155;
   }
 </style>

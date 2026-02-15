@@ -34,7 +34,7 @@
   h2 {
     margin: 0;
     font-size: 14px;
-    color: #374151;
+    color: #e5e7eb;
   }
 
   .message {
@@ -45,15 +45,15 @@
   }
 
   .message.info {
-    background: #eff6ff;
-    color: #1d4ed8;
-    border: 1px solid #bfdbfe;
+    background: #0b2942;
+    color: #bfdbfe;
+    border: 1px solid #1d4ed8;
   }
 
   .message.error {
-    background: #fef2f2;
-    color: #b91c1c;
-    border: 1px solid #fecaca;
+    background: #3f1d1d;
+    color: #fecaca;
+    border: 1px solid #ef4444;
   }
 
   .row {
@@ -67,21 +67,22 @@
   }
 
   button {
-    border: 1px solid #d1d5db;
-    background: #f9fafb;
+    border: 1px solid #475569;
+    background: #1f2937;
+    color: #e5e7eb;
     border-radius: 8px;
     padding: 6px 10px;
     cursor: pointer;
   }
 
   button:hover {
-    background: #f3f4f6;
+    background: #334155;
   }
 
   .status {
     margin: 0;
     font-size: 13px;
-    color: #6b7280;
+    color: #94a3b8;
   }
 
   .toggle {
@@ -89,6 +90,6 @@
     align-items: center;
     gap: 6px;
     font-size: 13px;
-    color: #374151;
+    color: #cbd5e1;
   }
 </style>

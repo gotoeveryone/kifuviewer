@@ -60,10 +60,10 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, cssSize, cssSize);
 
-    ctx.fillStyle = "#d6b178";
+    ctx.fillStyle = "#c89d5d";
     ctx.fillRect(0, 0, cssSize, cssSize);
 
-    ctx.strokeStyle = "#2f2a22";
+    ctx.strokeStyle = "#3b2b1f";
     ctx.lineWidth = 1;
     for (let i = 0; i < boardSize; i += 1) {
       const p = margin + i * cell;
@@ -78,7 +78,7 @@
       ctx.stroke();
     }
 
-    ctx.fillStyle = "#2f2a22";
+    ctx.fillStyle = "#3b2b1f";
     for (const [x, y] of starPointsBySize[boardSize] ?? []) {
       const px = margin + x * cell;
       const py = margin + y * cell;
@@ -240,11 +240,11 @@
   h2 {
     margin: 0;
     font-size: 14px;
-    color: #374151;
+    color: #e5e7eb;
   }
 
   canvas {
-    border: 1px solid #a16207;
+    border: 1px solid #7c5a2b;
     border-radius: 6px;
     box-shadow: 0 3px 10px rgba(17, 24, 39, 0.15);
   }

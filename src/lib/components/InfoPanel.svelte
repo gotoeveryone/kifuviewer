@@ -90,13 +90,13 @@
   h2 {
     margin: 0;
     font-size: 14px;
-    color: #374151;
+    color: #e5e7eb;
   }
 
   p {
     margin: 0;
     font-size: 13px;
-    color: #6b7280;
+    color: #94a3b8;
   }
 
   .grid {
@@ -111,7 +111,7 @@
   }
 
   .three {
-    grid-template-columns: 1.3fr minmax(76px, 0.5fr) 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(56px, 7ch) minmax(0, 1fr);
   }
 
   .two {
@@ -123,11 +123,7 @@
     display: grid;
     gap: 4px;
     font-size: 12px;
-    color: #6b7280;
-  }
-
-  .komi input {
-    max-width: 7ch;
+    color: #94a3b8;
   }
 
   .full {
@@ -138,11 +134,24 @@
   textarea {
     width: 100%;
     min-width: 0;
-    border: 1px solid #d1d5db;
+    border: 1px solid #475569;
+    background: #0f172a;
+    color: #e5e7eb;
     border-radius: 8px;
     padding: 6px 8px;
     font-size: 14px;
     font-family: inherit;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #64748b;
+  }
+
+  input:focus,
+  textarea:focus {
+    outline: 2px solid #334155;
+    outline-offset: 1px;
   }
 
   @media (max-width: 960px) {
@@ -151,8 +160,5 @@
       grid-template-columns: 1fr;
     }
 
-    .komi input {
-      max-width: 100%;
-    }
   }
 </style>
