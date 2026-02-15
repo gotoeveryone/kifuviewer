@@ -24,6 +24,14 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all"
+    "targets": "all",
+    "fileAssociations": [
+      {
+        "ext": ["sgf"],
+        "name": "Smart Game Format",
+        "description": "Go game record file",
+        "mimeType": "application/x-go-sgf"
+      }
+    ]
   }
 }

@@ -9,4 +9,14 @@ export type BoardState = {
     color: "B" | "W";
     point: Point | null;
   }>;
+  moveNumber: number;
+  lastMove: {
+    color: "B" | "W";
+    coord: string;
+    point: Point | null;
+  } | null;
+  captures: {
+    B: number;
+    W: number;
+  };
 };
