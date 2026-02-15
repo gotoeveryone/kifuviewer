@@ -228,13 +228,6 @@
     on:mousemove={onMouseMove}
     on:mouseleave={onMouseLeave}
   ></canvas>
-  <p class="coord">
-    {#if hoverPoint}
-      候補: {boardXLabel(hoverPoint.x)}{boardYLabel(hoverPoint.y)}
-    {:else}
-      候補: なし
-    {/if}
-  </p>
 </div>
 
 <style>
@@ -256,9 +249,4 @@
     box-shadow: 0 3px 10px rgba(17, 24, 39, 0.15);
   }
 
-  .coord {
-    margin: 0;
-    font-size: 13px;
-    color: #6b7280;
-  }
 </style>

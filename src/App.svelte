@@ -13,6 +13,8 @@
   import { setUiError, setUiInfo } from "./lib/stores/ui";
 
   let openedName = "";
+  let showUnsavedConfirm = false;
+  let pendingAction: "new" | "open" | null = null;
 
   const basename = (path: string): string => {
     return path.split(/[\\/]/).pop() ?? path;
@@ -31,7 +33,7 @@
     }
   };
 
-  const onOpenClick = async () => {
+  const runOpenFlow = async () => {
     try {
       const path = await pickSgfFile();
       if (!path) {
@@ -41,6 +43,15 @@
     } catch (error) {
       setUiError(`ファイル選択に失敗: ${String(error)}`);
     }
+  };
+
+  const onOpenClick = async () => {
+    if ($isDirty) {
+      pendingAction = "open";
+      showUnsavedConfirm = true;
+      return;
+    }
+    await runOpenFlow();
   };
 
   const onSaveClick = async () => {
@@ -66,12 +77,39 @@
     }
   };
 
-  const onNewClick = () => {
+  const runNewFlow = () => {
     setCollection(createEmptyCollection());
     currentFilePath.set("");
     openedName = "";
     setUiInfo("新規棋譜を作成しました。");
     goToStart();
+  };
+
+  const onNewClick = () => {
+    if ($isDirty) {
+      pendingAction = "new";
+      showUnsavedConfirm = true;
+      return;
+    }
+    runNewFlow();
+  };
+
+  const onUnsavedConfirmCancel = () => {
+    showUnsavedConfirm = false;
+    pendingAction = null;
+  };
+
+  const onUnsavedConfirmProceed = async () => {
+    showUnsavedConfirm = false;
+    const action = pendingAction;
+    pendingAction = null;
+    if (action === "new") {
+      runNewFlow();
+      return;
+    }
+    if (action === "open") {
+      await runOpenFlow();
+    }
   };
 
   onMount(() => {
@@ -117,4 +155,17 @@
     <VariationPanel />
     <InfoPanel />
   </section>
+
+  {#if showUnsavedConfirm}
+    <div class="modal-backdrop" role="presentation">
+      <div class="modal panel" role="dialog" aria-modal="true" aria-label="未保存確認">
+        <p class="modal-title">未保存の変更があります</p>
+        <p class="modal-text">保存せずに続行してもよろしいですか？</p>
+        <div class="modal-actions">
+          <button type="button" on:click={onUnsavedConfirmCancel}>キャンセル</button>
+          <button type="button" class="danger" on:click={onUnsavedConfirmProceed}>保存せずに続行</button>
+        </div>
+      </div>
+    </div>
+  {/if}
 </main>

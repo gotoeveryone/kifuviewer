@@ -1,26 +1,6 @@
 <script lang="ts">
-  import type { SgfNode } from "../types/sgf";
-  import { canonicalSgf, getFirstPropertyValue, getNodeByPath } from "../stores/sgf";
+  import { canonicalSgf, getNodeByPath } from "../stores/sgf";
   import { currentPath, switchNextVariation } from "../stores/playback";
-
-  const moveLabel = (coord: string, color: string): string => {
-    if (!coord) {
-      return `${color} pass`;
-    }
-    return `${color}[${coord}]`;
-  };
-
-  const describeNode = (node: SgfNode): string => {
-    const b = getFirstPropertyValue(node, "B");
-    if (b !== "") {
-      return moveLabel(b, "B");
-    }
-    const w = getFirstPropertyValue(node, "W");
-    if (w !== "") {
-      return moveLabel(w, "W");
-    }
-    return "(非着手ノード)";
-  };
 
   $: root = $canonicalSgf?.games[0]?.root ?? null;
   $: currentNode = root ? getNodeByPath(root, $currentPath) : null;
@@ -29,15 +9,11 @@
 
 <div class="variation">
   <h2>Variations</h2>
-  {#if !root}
-    <p>棋譜を読み込むと分岐を表示します。</p>
-  {:else if nextVariations.length === 0}
-    <p>次の分岐はありません。</p>
-  {:else}
+  {#if root && nextVariations.length > 0}
     <ul>
-      {#each nextVariations as node, index}
+      {#each nextVariations as _, index}
         <li>
-          <button type="button" on:click={() => switchNextVariation(index)}>{index + 1}. {describeNode(node)}</button>
+          <button type="button" on:click={() => switchNextVariation(index)}>分岐 {index + 1}</button>
         </li>
       {/each}
     </ul>
@@ -54,12 +30,6 @@
     margin: 0;
     font-size: 14px;
     color: #374151;
-  }
-
-  p {
-    margin: 0;
-    font-size: 13px;
-    color: #6b7280;
   }
 
   ul {

@@ -2,26 +2,6 @@
   import { boardState } from "../stores/board";
   import { goNext, goPrev, goToEndByMainLine, goToStart, isPlaying, showMoveNumbers, toggleMoveNumbers, togglePlayback } from "../stores/playback";
   import { uiMessage } from "../stores/ui";
-
-  const boardXLabel = (x: number): string => {
-    const letters = "ABCDEFGHJKLMNOPQRSTUVWXYZ";
-    return letters[x] ?? "?";
-  };
-
-  const boardYLabel = (y: number): string => {
-    return String(y + 1);
-  };
-
-  $: currentMoveLabel = (() => {
-    const last = $boardState.lastMove;
-    if (!last) {
-      return "開始局面";
-    }
-    if (!last.point) {
-      return `${last.color} パス`;
-    }
-    return `${last.color} ${boardXLabel(last.point.x)}${boardYLabel(last.point.y)}`;
-  })();
 </script>
 
 <div class="playback">
@@ -38,7 +18,6 @@
   </div>
 
   <p class="status">現在手数: {$boardState.moveNumber}</p>
-  <p class="status">現在手: {currentMoveLabel}</p>
   <p class="status">黒のアゲハマ: {$boardState.captures.B} / 白のアゲハマ: {$boardState.captures.W}</p>
   <label class="toggle">
     <input type="checkbox" checked={$showMoveNumbers} on:change={toggleMoveNumbers} />
