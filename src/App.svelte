@@ -5,6 +5,7 @@
   import PlaybackControls from "./lib/components/PlaybackControls.svelte";
   import InfoPanel from "./lib/components/InfoPanel.svelte";
   import VariationPanel from "./lib/components/VariationPanel.svelte";
+  import logoKifu from "./lib/assets/logo-kifu.svg";
   import { openSgfFile, pickSgfFile, saveSgfTextFile } from "./lib/tauri/commands";
   import { serializeSgfCollection } from "./lib/sgf/serializer";
   import { canonicalSgf, createEmptyCollection, currentFilePath, ensureCollection, isDirty, setCollection } from "./lib/stores/sgf";
@@ -84,6 +85,13 @@
 
 <main class="app">
   <section class="toolbar panel">
+    <div class="brand">
+      <img src={logoKifu} alt="Go Kifu Viewer logo" />
+      <div class="titles">
+        <strong>Go Kifu Viewer</strong>
+        <span>棋譜ビューア</span>
+      </div>
+    </div>
     <button type="button" on:click={onNewClick}>新規</button>
     <button type="button" on:click={onOpenClick}>開く...</button>
     <button type="button" on:click={onSaveClick}>保存</button>
