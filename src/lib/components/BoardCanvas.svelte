@@ -4,7 +4,7 @@
   import type { Point } from "../types/board";
   import { boardState, pointToSgfCoord } from "../stores/board";
   import { appendMoveAtPath } from "../stores/sgf";
-  import { currentPath } from "../stores/playback";
+  import { currentPath, showMoveNumbers } from "../stores/playback";
   import { setUiError } from "../stores/ui";
 
   const margin = 38;
@@ -126,6 +126,14 @@
       ctx.strokeStyle = stone.color === "B" ? "#111" : "#777";
       ctx.lineWidth = 1;
       ctx.stroke();
+
+      if ($showMoveNumbers && stone.moveNumber !== undefined) {
+        ctx.fillStyle = stone.color === "B" ? "#f3f4f6" : "#111827";
+        ctx.font = `${Math.max(9, Math.floor(cell * 0.34))}px sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(String(stone.moveNumber), px, py);
+      }
     }
 
     const currentMovePoint = $boardState.lastMove?.point;
@@ -199,7 +207,7 @@
     };
   });
 
-  $: canvas, container, $boardState, hoverPoint, draw();
+  $: canvas, container, $boardState, $showMoveNumbers, hoverPoint, draw();
 </script>
 
 <div class="board-wrap" bind:this={container}>

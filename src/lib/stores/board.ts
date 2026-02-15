@@ -26,7 +26,8 @@ export const boardState = derived([canonicalSgf, currentPath], ([$canonicalSgf, 
       const [x, y] = pointKey.split(",").map((v) => Number.parseInt(v, 10));
       return {
         color,
-        point: { x, y } as Point
+        point: { x, y } as Point,
+        moveNumber: simulation.moveMarks.get(pointKey)
       };
     }),
     moveNumber: simulation.moveNumber,

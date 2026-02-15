@@ -8,6 +8,7 @@ export type BoardState = {
   stones: Array<{
     color: "B" | "W";
     point: Point | null;
+    moveNumber?: number;
   }>;
   moveNumber: number;
   lastMove: {

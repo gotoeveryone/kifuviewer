@@ -8,6 +8,8 @@ type MoveValidationResult =
       ok: true;
       stones: Map<string, StoneColor>;
       captured: number;
+      removedKeys: string[];
+      playedPointKey: string | null;
     }
   | {
       ok: false;
@@ -17,6 +19,7 @@ type MoveValidationResult =
 export type BoardSimulation = {
   size: number;
   stones: Map<string, StoneColor>;
+  moveMarks: Map<string, number>;
   currentHash: string;
   hashBeforeLastMove: string | null;
   moveNumber: number;
@@ -170,7 +173,9 @@ const applyMove = (
     return {
       ok: true,
       stones: new Map(stones),
-      captured: 0
+      captured: 0,
+      removedKeys: [],
+      playedPointKey: null
     };
   }
 
@@ -188,6 +193,7 @@ const applyMove = (
   next.set(pointKey, color);
 
   let captured = 0;
+  const removedKeys: string[] = [];
   for (const n of neighbors(point, size)) {
     const nKey = key(n);
     if (next.get(nKey) !== opposite(color)) {
@@ -199,6 +205,7 @@ const applyMove = (
       for (const removeKey of group) {
         next.delete(removeKey);
         captured += 1;
+        removedKeys.push(removeKey);
       }
     }
   }
@@ -213,13 +220,14 @@ const applyMove = (
     return { ok: false, reason: "コウで同形再現になるため打てません。" };
   }
 
-  return { ok: true, stones: next, captured };
+  return { ok: true, stones: next, captured, removedKeys, playedPointKey: pointKey };
 };
 
 export const simulateBoardAtPath = (root: SgfNode, path: number[]): BoardSimulation => {
   const size = Number.parseInt(firstPropertyValue(root, "SZ"), 10) || 19;
   let current: SgfNode | null = root;
   const stones = new Map<string, StoneColor>();
+  const moveMarks = new Map<string, number>();
 
   let hashBeforeLastMove: string | null = null;
   let moveNumber = 0;
@@ -241,6 +249,12 @@ export const simulateBoardAtPath = (root: SgfNode, path: number[]): BoardSimulat
     hashBeforeLastMove = beforeHash;
     captures[color] += result.captured;
     moveNumber += 1;
+    for (const removedKey of result.removedKeys) {
+      moveMarks.delete(removedKey);
+    }
+    if (result.playedPointKey) {
+      moveMarks.set(result.playedPointKey, moveNumber);
+    }
     lastMove = {
       color,
       coord,
@@ -281,6 +295,7 @@ export const simulateBoardAtPath = (root: SgfNode, path: number[]): BoardSimulat
   return {
     size,
     stones,
+    moveMarks,
     currentHash: boardHash(stones),
     hashBeforeLastMove,
     moveNumber,

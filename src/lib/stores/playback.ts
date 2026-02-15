@@ -4,6 +4,11 @@ import { canonicalSgf, getNodeByPath } from "./sgf";
 export const currentPath = writable<number[]>([]);
 export const isPlaying = writable(false);
 export const playbackSpeedMs = writable(900);
+export const showMoveNumbers = writable(false);
+
+export const toggleMoveNumbers = (): void => {
+  showMoveNumbers.update((value) => !value);
+};
 
 const getRoot = () => {
   const sgf = get(canonicalSgf);

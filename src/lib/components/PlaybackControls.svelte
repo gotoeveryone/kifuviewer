@@ -1,6 +1,6 @@
 <script lang="ts">
   import { boardState } from "../stores/board";
-  import { goNext, goPrev, goToEndByMainLine, goToStart, isPlaying, togglePlayback } from "../stores/playback";
+  import { goNext, goPrev, goToEndByMainLine, goToStart, isPlaying, showMoveNumbers, toggleMoveNumbers, togglePlayback } from "../stores/playback";
   import { uiMessage } from "../stores/ui";
 
   const boardXLabel = (x: number): string => {
@@ -40,6 +40,10 @@
   <p class="status">現在手数: {$boardState.moveNumber}</p>
   <p class="status">現在手: {currentMoveLabel}</p>
   <p class="status">黒のアゲハマ: {$boardState.captures.B} / 白のアゲハマ: {$boardState.captures.W}</p>
+  <label class="toggle">
+    <input type="checkbox" checked={$showMoveNumbers} on:change={toggleMoveNumbers} />
+    手数表示
+  </label>
 </div>
 
 <style>
@@ -99,5 +103,13 @@
     margin: 0;
     font-size: 13px;
     color: #6b7280;
+  }
+
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #374151;
   }
 </style>
