@@ -3,7 +3,20 @@ use crate::sgf::types::SgfCollection;
 use filetime::{set_file_mtime, FileTime};
 use rfd::FileDialog;
 use std::fs;
+use std::sync::{Mutex, OnceLock};
 use std::time::SystemTime;
+
+static PENDING_OPEN_PATH: OnceLock<Mutex<Option<String>>> = OnceLock::new();
+
+fn pending_open_path_cell() -> &'static Mutex<Option<String>> {
+    PENDING_OPEN_PATH.get_or_init(|| Mutex::new(None))
+}
+
+pub fn set_pending_open_path(path: Option<String>) {
+    if let Ok(mut pending) = pending_open_path_cell().lock() {
+        *pending = path;
+    }
+}
 
 #[tauri::command]
 pub fn pick_sgf_file() -> Result<Option<String>, String> {
@@ -46,4 +59,12 @@ pub fn validate_sgf(sgf: SgfCollection) -> Result<(), String> {
         return Err("SGF collection contains no games".to_string());
     }
     Ok(())
+}
+
+#[tauri::command]
+pub fn take_pending_open_path() -> Option<String> {
+    if let Ok(mut pending) = pending_open_path_cell().lock() {
+        return pending.take();
+    }
+    None
 }

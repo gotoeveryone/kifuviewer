@@ -16,3 +16,7 @@ export const openSgfFile = async (path: string): Promise<SgfCollection> => {
 export const saveSgfTextFile = async (path: string, content: string): Promise<void> => {
   await invoke("save_sgf_text_file", { path, content });
 };
+
+export const takePendingOpenPath = async (): Promise<string | null> => {
+  return invoke<string | null>("take_pending_open_path");
+};

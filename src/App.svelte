@@ -7,7 +7,7 @@
   import VariationPanel from "./lib/components/VariationPanel.svelte";
   import logoKifu from "./lib/assets/logo-kifu.svg";
   import { setupMoveSound } from "./lib/audio/moveSound";
-  import { openSgfFile, pickSaveSgfFile, pickSgfFile, saveSgfTextFile } from "./lib/tauri/commands";
+  import { openSgfFile, pickSaveSgfFile, pickSgfFile, saveSgfTextFile, takePendingOpenPath } from "./lib/tauri/commands";
   import { serializeSgfCollection } from "./lib/sgf/serializer";
   import { canonicalSgf, createEmptyCollection, currentFilePath, ensureCollection, isDirty, setCollection } from "./lib/stores/sgf";
   import { goToStart } from "./lib/stores/playback";
@@ -119,6 +119,14 @@
     }
 
     const cleanupMoveSound = setupMoveSound();
+
+    void (async () => {
+      const startupPath = await takePendingOpenPath();
+      if (startupPath) {
+        await openFromPath(startupPath);
+      }
+    })();
+
     const unlistenPromise = listen<string>("file-open-request", async (event) => {
       await openFromPath(event.payload);
     });
