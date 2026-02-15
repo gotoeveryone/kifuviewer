@@ -6,6 +6,7 @@
   import InfoPanel from "./lib/components/InfoPanel.svelte";
   import VariationPanel from "./lib/components/VariationPanel.svelte";
   import logoKifu from "./lib/assets/logo-kifu.svg";
+  import { setupMoveSound } from "./lib/audio/moveSound";
   import { openSgfFile, pickSaveSgfFile, pickSgfFile, saveSgfTextFile } from "./lib/tauri/commands";
   import { serializeSgfCollection } from "./lib/sgf/serializer";
   import { canonicalSgf, createEmptyCollection, currentFilePath, ensureCollection, isDirty, setCollection } from "./lib/stores/sgf";
@@ -117,11 +118,13 @@
       setCollection(createEmptyCollection());
     }
 
+    const cleanupMoveSound = setupMoveSound();
     const unlistenPromise = listen<string>("file-open-request", async (event) => {
       await openFromPath(event.payload);
     });
 
     return () => {
+      cleanupMoveSound();
       unlistenPromise.then((unlisten) => unlisten());
     };
   });
