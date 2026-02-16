@@ -3,6 +3,8 @@ name: Build Installers
 on:
   workflow_dispatch:
   push:
+    branches:
+      - chore/test-build-installers-workflow
     tags:
       - "v*"
 
