@@ -9,15 +9,17 @@
 
 <div class="variation">
   <h2>Variations</h2>
-  {#if root && nextVariations.length > 0}
-    <ul>
+  <ul>
+    {#if root && nextVariations.length > 0}
       {#each nextVariations as _, index}
         <li>
           <button type="button" on:click={() => switchNextVariation(index)}>分岐 {index + 1}</button>
         </li>
       {/each}
-    </ul>
-  {/if}
+    {:else}
+      <li class="empty">分岐なし</li>
+    {/if}
+  </ul>
 </div>
 
 <style>
@@ -38,6 +40,9 @@
     list-style: none;
     display: grid;
     gap: 6px;
+    height: 52px;
+    overflow-y: auto;
+    align-content: start;
   }
 
   button {
@@ -53,5 +58,14 @@
 
   button:hover {
     background: #334155;
+  }
+
+  .empty {
+    border: 1px solid #475569;
+    background: #1f2937;
+    color: #94a3b8;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 13px;
   }
 </style>
