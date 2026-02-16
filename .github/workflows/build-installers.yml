@@ -2,9 +2,6 @@ name: Build Installers (Unsigned)
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - "v*"
 
 concurrency:
   group: build-installers-${{ github.ref }}
