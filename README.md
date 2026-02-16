@@ -2,6 +2,11 @@
 
 Svelte + Tauri で作られた、SGF 向けの簡易棋譜ビューアです。
 
+## Requirements
+
+- node 24.13
+- cargo 1.93.1
+
 ## 起動手順（最短）
 
 ### 1. 依存関係をインストール
