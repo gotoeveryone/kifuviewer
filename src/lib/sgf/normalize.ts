@@ -12,6 +12,9 @@ const ROOT_ALLOWED_IDENTS = new Set([
   "BR",
   "PW",
   "WR",
+  "AB",
+  "AW",
+  "AE",
   "C"
 ]);
 
