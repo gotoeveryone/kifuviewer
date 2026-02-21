@@ -18,15 +18,17 @@ body {
 }
 
 .app {
-  min-height: 100vh;
+  height: 100vh;
   padding: 16px;
   display: grid;
   gap: 12px;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  grid-template-rows: auto minmax(130px, 0.7fr) minmax(0, 1.3fr);
   grid-template-areas:
     "toolbar toolbar"
     "board playback"
     "board info";
+  overflow: hidden;
 }
 
 .panel {
@@ -36,6 +38,7 @@ body {
   padding: 12px;
   color: #e5e7eb;
   box-shadow: 0 8px 24px rgba(2, 6, 23, 0.35);
+  min-height: 0;
 }
 
 .toolbar {
@@ -106,16 +109,22 @@ body {
 
 .board-panel {
   grid-area: board;
+  overflow: auto;
 }
 
 .two-col {
   grid-area: info;
   display: grid;
   gap: 12px;
+  align-content: start;
+  align-items: start;
+  min-height: 0;
+  overflow: auto;
 }
 
 .app > .panel:nth-child(3) {
   grid-area: playback;
+  overflow: auto;
 }
 
 .modal-backdrop {
@@ -178,6 +187,10 @@ body {
 
 @media (max-width: 960px) {
   .app {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    grid-template-rows: none;
     grid-template-columns: 1fr;
     grid-template-areas:
       "toolbar"

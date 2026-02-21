@@ -14,8 +14,8 @@
       {
         "label": "main",
         "title": "Go Kifu Viewer",
-        "width": 1200,
-        "height": 800,
+        "width": 1280,
+        "height": 920,
         "minWidth": 800,
         "minHeight": 600,
         "resizable": true
