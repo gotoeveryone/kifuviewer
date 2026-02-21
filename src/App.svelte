@@ -8,6 +8,7 @@
   import logoKifu from "./lib/assets/logo-kifu.svg";
   import { setupMoveSound } from "./lib/audio/moveSound";
   import { openSgfFile, pickSaveSgfFile, pickSgfFile, saveSgfTextFile, takePendingOpenPath } from "./lib/tauri/commands";
+  import { normalizeCollectionForSave } from "./lib/sgf/normalize";
   import { serializeSgfCollection } from "./lib/sgf/serializer";
   import { canonicalSgf, createEmptyCollection, currentFilePath, ensureCollection, isDirty, setCollection } from "./lib/stores/sgf";
   import { goToStart } from "./lib/stores/playback";
@@ -58,7 +59,8 @@
   const onSaveClick = async () => {
     try {
       const collection = ensureCollection();
-      const sgfText = serializeSgfCollection(collection);
+      const normalized = normalizeCollectionForSave(collection);
+      const sgfText = serializeSgfCollection(normalized);
       let savePath = $currentFilePath;
       if (!savePath) {
         const picked = await pickSaveSgfFile();
