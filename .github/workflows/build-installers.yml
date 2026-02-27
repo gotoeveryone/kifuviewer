@@ -25,7 +25,7 @@ jobs:
             bundle_path: src-tauri/target/aarch64-apple-darwin/release/bundle/**
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v4
         with:
