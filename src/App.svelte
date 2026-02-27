@@ -80,6 +80,26 @@
     }
   };
 
+  const onSaveAsClick = async () => {
+    try {
+      const collection = ensureCollection();
+      const normalized = normalizeCollectionForSave(collection);
+      const sgfText = serializeSgfCollection(normalized);
+      const savePath = await pickSaveSgfFile();
+      if (!savePath) {
+        return;
+      }
+
+      await saveSgfTextFile(savePath, sgfText);
+      currentFilePath.set(savePath);
+      openedName = basename(savePath);
+      isDirty.set(false);
+      setUiInfo(`別名保存成功: ${basename(savePath)}`);
+    } catch (error) {
+      setUiError(`別名保存失敗: ${String(error)}`);
+    }
+  };
+
   const runNewFlow = () => {
     setCollection(createEmptyCollection());
     currentFilePath.set("");
@@ -115,6 +135,17 @@
     }
   };
 
+  const isEditableTarget = (target: EventTarget | null): boolean => {
+    if (!(target instanceof HTMLElement)) {
+      return false;
+    }
+    return (
+      target.tagName === "INPUT" ||
+      target.tagName === "TEXTAREA" ||
+      target.isContentEditable
+    );
+  };
+
   onMount(() => {
     if (!$canonicalSgf) {
       setCollection(createEmptyCollection());
@@ -133,7 +164,43 @@
       await openFromPath(event.payload);
     });
 
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey) || event.altKey) {
+        return;
+      }
+      if (isEditableTarget(event.target)) {
+        return;
+      }
+      const key = event.key.toLowerCase();
+
+      if (key === "s") {
+        event.preventDefault();
+        if (event.shiftKey) {
+          void onSaveAsClick();
+          return;
+        }
+        void onSaveClick();
+        return;
+      }
+
+      if (event.shiftKey) {
+        return;
+      }
+      if (key === "n") {
+        event.preventDefault();
+        onNewClick();
+        return;
+      }
+      if (key === "o") {
+        event.preventDefault();
+        void onOpenClick();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+
     return () => {
+      window.removeEventListener("keydown", onKeyDown);
       cleanupMoveSound();
       unlistenPromise.then((unlisten) => unlisten());
     };
@@ -149,9 +216,10 @@
         <span>棋譜ビューア</span>
       </div>
     </div>
-    <button type="button" on:click={onNewClick}>新規</button>
-    <button type="button" on:click={onOpenClick}>開く...</button>
-    <button type="button" on:click={onSaveClick}>保存</button>
+    <button type="button" title="Ctrl+N" on:click={onNewClick}>新規</button>
+    <button type="button" title="Ctrl+O" on:click={onOpenClick}>開く...</button>
+    <button type="button" title="Ctrl+S" on:click={onSaveClick}>保存</button>
+    <button type="button" title="Ctrl+Shift+S" on:click={onSaveAsClick}>名前を付けて保存...</button>
     <span class="meta">{#if openedName}現在: {openedName}{/if}</span>
     <span class="meta">{#if $isDirty}未保存の変更あり{/if}</span>
   </section>
