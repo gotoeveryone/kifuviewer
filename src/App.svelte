@@ -8,7 +8,7 @@
   import logoKifu from "./lib/assets/logo-kifu.svg";
   import { setupMoveSound } from "./lib/audio/moveSound";
   import { openSgfFile, pickSaveSgfFile, pickSgfFile, saveSgfTextFile, takePendingOpenPath } from "./lib/tauri/commands";
-  import { normalizeCollectionForSave } from "./lib/sgf/normalize";
+  import { normalizeCollectionForLoad, normalizeCollectionForSave } from "./lib/sgf/normalize";
   import { serializeSgfCollection } from "./lib/sgf/serializer";
   import { canonicalSgf, createEmptyCollection, currentFilePath, ensureCollection, isDirty, setCollection } from "./lib/stores/sgf";
   import { goToStart } from "./lib/stores/playback";
@@ -25,7 +25,7 @@
   const openFromPath = async (path: string) => {
     try {
       const loaded = await openSgfFile(path);
-      setCollection(loaded);
+      setCollection(normalizeCollectionForLoad(loaded));
       currentFilePath.set(path);
       openedName = basename(path);
       goToStart();

@@ -33,6 +33,33 @@ const normalizeRootProperties = (properties: SgfProperty[]): SgfProperty[] => {
   return [...kept, { ident: APP_PROPERTY.ident, values: [...APP_PROPERTY.values] }];
 };
 
+const normalizeRootPropertiesForLoad = (properties: SgfProperty[]): SgfProperty[] => {
+  const normalized: SgfProperty[] = [];
+  let firstDtValue = "";
+  let firstRdValue = "";
+
+  for (const prop of properties) {
+    if (prop.ident === "RD") {
+      if (firstRdValue === "") {
+        firstRdValue = prop.values[0] ?? "";
+      }
+      continue;
+    }
+
+    normalized.push({ ident: prop.ident, values: [...prop.values] });
+
+    if (prop.ident === "DT" && firstDtValue === "") {
+      firstDtValue = prop.values[0] ?? "";
+    }
+  }
+
+  if (firstDtValue === "" && firstRdValue !== "") {
+    normalized.push({ ident: "DT", values: [firstRdValue] });
+  }
+
+  return normalized;
+};
+
 const normalizeNode = (node: SgfNode, isRoot: boolean): SgfNode => {
   return {
     properties: isRoot ? normalizeRootProperties(node.properties) : keepAllowedProperties(node.properties, NODE_ALLOWED_IDENTS),
@@ -44,6 +71,17 @@ export const normalizeCollectionForSave = (collection: SgfCollection): SgfCollec
   return {
     games: collection.games.map((game) => ({
       root: normalizeNode(game.root, true)
+    }))
+  };
+};
+
+export const normalizeCollectionForLoad = (collection: SgfCollection): SgfCollection => {
+  return {
+    games: collection.games.map((game) => ({
+      root: {
+        properties: normalizeRootPropertiesForLoad(game.root.properties),
+        children: game.root.children
+      }
     }))
   };
 };
