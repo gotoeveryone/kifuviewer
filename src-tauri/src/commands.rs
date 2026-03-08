@@ -31,12 +31,21 @@ pub fn pick_sgf_file() -> Result<Option<String>, String> {
 }
 
 #[tauri::command]
-pub fn pick_save_sgf_file() -> Result<Option<String>, String> {
-    let file = FileDialog::new()
+pub fn pick_save_sgf_file(
+    default_file_name: Option<String>,
+    default_directory: Option<String>,
+) -> Result<Option<String>, String> {
+    let file_name = default_file_name
+        .filter(|name| !name.trim().is_empty())
+        .unwrap_or_else(|| "game.sgf".to_string());
+    let mut dialog = FileDialog::new()
         .add_filter("SGF", &["sgf"])
         .set_title("Save SGF file")
-        .set_file_name("game.sgf")
-        .save_file();
+        .set_file_name(&file_name);
+    if let Some(dir) = default_directory.filter(|dir| !dir.trim().is_empty()) {
+        dialog = dialog.set_directory(dir);
+    }
+    let file = dialog.save_file();
 
     Ok(file.map(|p| p.to_string_lossy().to_string()))
 }

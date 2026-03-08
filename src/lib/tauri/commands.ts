@@ -5,8 +5,8 @@ export const pickSgfFile = async (): Promise<string | null> => {
   return invoke<string | null>("pick_sgf_file");
 };
 
-export const pickSaveSgfFile = async (): Promise<string | null> => {
-  return invoke<string | null>("pick_save_sgf_file");
+export const pickSaveSgfFile = async (defaultFileName?: string, defaultDirectory?: string): Promise<string | null> => {
+  return invoke<string | null>("pick_save_sgf_file", { defaultFileName, defaultDirectory });
 };
 
 export const openSgfFile = async (path: string): Promise<SgfCollection> => {

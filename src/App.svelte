@@ -21,6 +21,21 @@
   const basename = (path: string): string => {
     return path.split(/[\\/]/).pop() ?? path;
   };
+  const dirname = (path: string): string => {
+    const index = path.lastIndexOf("/");
+    const windowsIndex = path.lastIndexOf("\\");
+    const splitAt = Math.max(index, windowsIndex);
+    if (splitAt < 0) {
+      return "";
+    }
+    if (splitAt === 0) {
+      return path[0];
+    }
+    if (splitAt === 2 && path[1] === ":" && path[2] === "\\") {
+      return path.slice(0, 3);
+    }
+    return path.slice(0, splitAt);
+  };
 
   const openFromPath = async (path: string) => {
     try {
@@ -63,7 +78,7 @@
       const sgfText = serializeSgfCollection(normalized);
       let savePath = $currentFilePath;
       if (!savePath) {
-        const picked = await pickSaveSgfFile();
+        const picked = await pickSaveSgfFile(openedName || undefined, dirname($currentFilePath));
         if (!picked) {
           return;
         }
@@ -85,7 +100,7 @@
       const collection = ensureCollection();
       const normalized = normalizeCollectionForSave(collection);
       const sgfText = serializeSgfCollection(normalized);
-      const savePath = await pickSaveSgfFile();
+      const savePath = await pickSaveSgfFile(openedName || undefined, dirname($currentFilePath));
       if (!savePath) {
         return;
       }
