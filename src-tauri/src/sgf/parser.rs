@@ -19,6 +19,15 @@ pub fn parse_sgf_collection(input: &str) -> Result<SgfCollection, ParseError> {
 
     p.skip_ws();
     while !p.is_eof() {
+        if !matches!(p.peek(), Some('(')) {
+            if games.is_empty() {
+                return Err(ParseError::Expected {
+                    expected: '(',
+                    at: p.idx,
+                });
+            }
+            break;
+        }
         games.push(p.parse_game_tree()?);
         p.skip_ws();
     }
@@ -97,9 +106,18 @@ impl Parser {
     fn parse_node_sequence(&mut self) -> Result<Vec<SgfNode>, ParseError> {
         let mut nodes = Vec::new();
         self.skip_ws();
-        while matches!(self.peek(), Some(';')) {
-            nodes.push(self.parse_node()?);
+        if matches!(self.peek(), Some(';')) {
+            while matches!(self.peek(), Some(';')) {
+                nodes.push(self.parse_node()?);
+                self.skip_ws();
+            }
+        } else if matches!(self.peek(), Some(c) if c.is_ascii_uppercase()) {
+            nodes.push(self.parse_implicit_root_node()?);
             self.skip_ws();
+            while matches!(self.peek(), Some(';')) {
+                nodes.push(self.parse_node()?);
+                self.skip_ws();
+            }
         }
 
         if nodes.is_empty() {
@@ -129,6 +147,24 @@ impl Parser {
             self.skip_ws();
         }
 
+        Ok(node)
+    }
+
+    fn parse_implicit_root_node(&mut self) -> Result<SgfNode, ParseError> {
+        let mut node = SgfNode::empty();
+        while let Some(c) = self.peek() {
+            if c == ';' || c == '(' || c == ')' {
+                break;
+            }
+            if c.is_whitespace() {
+                self.skip_ws();
+                continue;
+            }
+            let ident = self.parse_ident()?;
+            let values = self.parse_values()?;
+            node.properties.push(SgfProperty { ident, values });
+            self.skip_ws();
+        }
         Ok(node)
     }
 
@@ -216,5 +252,22 @@ mod tests {
         let root = &parsed.games[0].root;
         assert_eq!(root.properties[0].ident, "B");
         assert_eq!(root.children.len(), 2);
+    }
+
+    #[test]
+    fn parse_without_leading_root_semicolon() {
+        let sgf = "(FF[4]SZ[19];B[pd];W[dd])";
+        let parsed = parse_sgf_collection(sgf).expect("parse should succeed");
+        let root = &parsed.games[0].root;
+        assert_eq!(root.properties[0].ident, "FF");
+        assert_eq!(root.children.len(), 1);
+    }
+
+    #[test]
+    fn parse_with_trailing_non_sgf_text() {
+        let sgf = "(;FF[4]SZ[19];B[pd];W[dd])\n# trailing notes\nline2: metadata";
+        let parsed = parse_sgf_collection(sgf).expect("parse should succeed");
+        assert_eq!(parsed.games.len(), 1);
+        assert_eq!(parsed.games[0].root.properties[0].ident, "FF");
     }
 }

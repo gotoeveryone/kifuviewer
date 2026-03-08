@@ -1,5 +1,7 @@
 use crate::sgf::parser::parse_sgf_collection;
 use crate::sgf::types::SgfCollection;
+use chardetng::EncodingDetector;
+use encoding_rs::UTF_8;
 use filetime::{set_file_mtime, FileTime};
 use rfd::FileDialog;
 use std::fs;
@@ -41,8 +43,26 @@ pub fn pick_save_sgf_file() -> Result<Option<String>, String> {
 
 #[tauri::command]
 pub fn open_sgf_file(path: String) -> Result<SgfCollection, String> {
-    let content = fs::read_to_string(&path).map_err(|e| format!("failed to read file: {e}"))?;
+    let bytes = fs::read(&path).map_err(|e| format!("failed to read file: {e}"))?;
+    let content = decode_sgf_bytes(&bytes);
     parse_sgf_collection(&content).map_err(|e| e.to_string())
+}
+
+fn decode_sgf_bytes(bytes: &[u8]) -> String {
+    if let Ok(utf8) = std::str::from_utf8(bytes) {
+        return utf8.strip_prefix('\u{feff}').unwrap_or(utf8).to_string();
+    }
+
+    let mut detector = EncodingDetector::new();
+    detector.feed(bytes, true);
+    let encoding = detector.guess(None, true);
+    let (decoded, _, _) = encoding.decode(bytes);
+
+    if encoding == UTF_8 {
+        decoded.strip_prefix('\u{feff}').unwrap_or(&decoded).to_string()
+    } else {
+        decoded.into_owned()
+    }
 }
 
 #[tauri::command]
@@ -67,4 +87,25 @@ pub fn take_pending_open_path() -> Option<String> {
         return pending.take();
     }
     None
+}
+
+#[cfg(test)]
+mod tests {
+    use super::decode_sgf_bytes;
+
+    #[test]
+    fn decode_sgf_bytes_supports_utf8_bom() {
+        let bytes = b"\xEF\xBB\xBF(;GM[1]FF[4]SZ[19])";
+        let decoded = decode_sgf_bytes(bytes);
+        assert_eq!(decoded, "(;GM[1]FF[4]SZ[19])");
+    }
+
+    #[test]
+    fn decode_sgf_bytes_recovers_invalid_utf8() {
+        let bytes = b"(;GM[1]FF[4]C[abc\xFFdef])";
+        let decoded = decode_sgf_bytes(bytes);
+        assert!(decoded.starts_with("(;GM[1]FF[4]C["));
+        assert!(decoded.contains("abc"));
+        assert!(decoded.contains("def"));
+    }
 }
