@@ -111,7 +111,15 @@ export type AppendMoveResult = {
   error: string | null;
 };
 
-export const appendMoveAtPath = (path: number[], coord: string): AppendMoveResult => {
+type AppendMoveOptions = {
+  overwriteFuture?: boolean;
+};
+
+export const appendMoveAtPath = (
+  path: number[],
+  coord: string,
+  options: AppendMoveOptions = {}
+): AppendMoveResult => {
   let result: AppendMoveResult = { path, error: null };
 
   canonicalSgf.update((current) => {
@@ -123,10 +131,13 @@ export const appendMoveAtPath = (path: number[], coord: string): AppendMoveResul
       return working;
     }
 
-    // New moves are allowed only when the current node is the end of line.
     if (node.children.length > 0) {
-      result = { path, error: "最終手まで進んでから着手してください。" };
-      return working;
+      if (!options.overwriteFuture) {
+        result = { path, error: "現在の手より後の手順があります。上書きしてください。" };
+        return working;
+      }
+
+      node.children = [];
     }
 
     const lastColor = getLastMoveColor(root, path);

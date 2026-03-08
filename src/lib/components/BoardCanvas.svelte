@@ -3,7 +3,7 @@
   import { get } from "svelte/store";
   import type { Point } from "../types/board";
   import { boardState, pointToSgfCoord } from "../stores/board";
-  import { appendMoveAtPath } from "../stores/sgf";
+  import { appendMoveAtPath, canonicalSgf, getNodeByPath } from "../stores/sgf";
   import { currentPath, showMoveNumbers } from "../stores/playback";
   import { setUiError } from "../stores/ui";
 
@@ -11,6 +11,8 @@
   let canvas: HTMLCanvasElement;
   let container: HTMLDivElement;
   let hoverPoint: Point | null = null;
+  let showOverwriteConfirm = false;
+  let pendingOverwrite: { path: number[]; coord: string } | null = null;
 
   const starPointsBySize: Record<number, Array<[number, number]>> = {
     19: [
@@ -183,6 +185,32 @@
     return $boardState.stones.some((stone) => stone.point?.x === point.x && stone.point?.y === point.y);
   };
 
+  const executeAppendMove = (path: number[], coord: string, overwriteFuture: boolean): void => {
+    const result = appendMoveAtPath(path, coord, { overwriteFuture });
+    if (result.error) {
+      setUiError(result.error);
+      return;
+    }
+
+    currentPath.set(result.path);
+  };
+
+  const onOverwriteConfirmCancel = () => {
+    showOverwriteConfirm = false;
+    pendingOverwrite = null;
+  };
+
+  const onOverwriteConfirmProceed = () => {
+    showOverwriteConfirm = false;
+    if (!pendingOverwrite) {
+      return;
+    }
+
+    const { path, coord } = pendingOverwrite;
+    pendingOverwrite = null;
+    executeAppendMove(path, coord, true);
+  };
+
   const onCanvasClick = (event: MouseEvent) => {
     const point = toBoardPoint(event);
     if (!point) {
@@ -194,13 +222,19 @@
       return;
     }
 
-    const result = appendMoveAtPath(get(currentPath), pointToSgfCoord(point));
-    if (result.error) {
-      setUiError(result.error);
+    const path = get(currentPath);
+    const root = get(canonicalSgf)?.games[0]?.root;
+    const node = root ? getNodeByPath(root, path) : null;
+    const hasFutureMoves = Boolean(node && node.children.length > 0);
+
+    const coord = pointToSgfCoord(point);
+    if (hasFutureMoves) {
+      pendingOverwrite = { path, coord };
+      showOverwriteConfirm = true;
       return;
     }
 
-    currentPath.set(result.path);
+    executeAppendMove(path, coord, false);
   };
 
   const onMouseLeave = () => {
@@ -230,6 +264,19 @@
   ></canvas>
 </div>
 
+{#if showOverwriteConfirm}
+  <div class="modal-backdrop" role="presentation">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="手順上書き確認">
+      <p class="modal-title">手順を上書きしますか？</p>
+      <p class="modal-text">現在の手より後の手順を削除して、この手で上書きします。</p>
+      <div class="modal-actions">
+        <button type="button" on:click={onOverwriteConfirmCancel}>キャンセル</button>
+        <button type="button" class="danger" on:click={onOverwriteConfirmProceed}>上書きする</button>
+      </div>
+    </div>
+  </div>
+{/if}
+
 <style>
   .board-wrap {
     display: grid;
@@ -247,6 +294,56 @@
     border: 1px solid #7c5a2b;
     border-radius: 6px;
     box-shadow: 0 3px 10px rgba(17, 24, 39, 0.15);
+  }
+
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 50;
+  }
+
+  .modal {
+    width: min(440px, calc(100vw - 32px));
+    padding: 16px;
+    border: 1px solid #374151;
+    border-radius: 8px;
+    background: #111827;
+    color: #e5e7eb;
+    display: grid;
+    gap: 12px;
+  }
+
+  .modal-title {
+    margin: 0;
+    font-weight: 700;
+  }
+
+  .modal-text {
+    margin: 0;
+    color: #d1d5db;
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .modal-actions button {
+    border: 1px solid #4b5563;
+    border-radius: 6px;
+    padding: 6px 12px;
+    background: #1f2937;
+    color: #e5e7eb;
+    cursor: pointer;
+  }
+
+  .modal-actions button.danger {
+    border-color: #b91c1c;
+    background: #991b1b;
   }
 
 </style>
