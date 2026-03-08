@@ -127,64 +127,6 @@ body {
   overflow: auto;
 }
 
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(2, 6, 23, 0.62);
-  display: grid;
-  place-items: center;
-  z-index: 1000;
-  padding: 16px;
-}
-
-.modal {
-  width: min(460px, 100%);
-  display: grid;
-  gap: 10px;
-}
-
-.modal-title {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 700;
-  color: #e5e7eb;
-}
-
-.modal-text {
-  margin: 0;
-  font-size: 14px;
-  color: #94a3b8;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.modal-actions button {
-  border: 1px solid #475569;
-  background: #1f2937;
-  color: #e5e7eb;
-  border-radius: 8px;
-  padding: 7px 12px;
-  cursor: pointer;
-}
-
-.modal-actions button:hover {
-  background: #334155;
-}
-
-.modal-actions .danger {
-  border-color: #b91c1c;
-  background: #3f1d1d;
-  color: #fecaca;
-}
-
-.modal-actions .danger:hover {
-  background: #522727;
-}
-
 @media (max-width: 960px) {
   .app {
     height: auto;

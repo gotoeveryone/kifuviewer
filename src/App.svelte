@@ -5,6 +5,7 @@
   import PlaybackControls from "./lib/components/PlaybackControls.svelte";
   import InfoPanel from "./lib/components/InfoPanel.svelte";
   import VariationPanel from "./lib/components/VariationPanel.svelte";
+  import ConfirmModal from "./lib/components/ConfirmModal.svelte";
   import logoKifu from "./lib/assets/logo-kifu.svg";
   import { setupMoveSound } from "./lib/audio/moveSound";
   import { openSgfFile, pickSaveSgfFile, pickSgfFile, saveSgfTextFile, takePendingOpenPath } from "./lib/tauri/commands";
@@ -237,16 +238,15 @@
     <InfoPanel />
   </section>
 
-  {#if showUnsavedConfirm}
-    <div class="modal-backdrop" role="presentation">
-      <div class="modal panel" role="dialog" aria-modal="true" aria-label="未保存確認">
-        <p class="modal-title">未保存の変更があります</p>
-        <p class="modal-text">保存せずに続行してもよろしいですか？</p>
-        <div class="modal-actions">
-          <button type="button" on:click={onUnsavedConfirmCancel}>キャンセル</button>
-          <button type="button" class="danger" on:click={onUnsavedConfirmProceed}>保存せずに続行</button>
-        </div>
-      </div>
-    </div>
-  {/if}
+  <ConfirmModal
+    open={showUnsavedConfirm}
+    ariaLabel="未保存確認"
+    title="未保存の変更があります"
+    message="保存せずに続行してもよろしいですか？"
+    cancelLabel="キャンセル"
+    confirmLabel="保存せずに続行"
+    confirmKind="danger"
+    onCancel={onUnsavedConfirmCancel}
+    onConfirm={onUnsavedConfirmProceed}
+  />
 </main>
