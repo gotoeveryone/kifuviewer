@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { tick } from "svelte";
+
   export let open = false;
   export let ariaLabel = "確認ダイアログ";
   export let title = "確認";
@@ -8,7 +10,29 @@
   export let confirmKind: "normal" | "danger" = "normal";
   export let onCancel: () => void = () => {};
   export let onConfirm: () => void = () => {};
+
+  let cancelButton: HTMLButtonElement | null = null;
+
+  const onWindowKeydown = (event: KeyboardEvent): void => {
+    if (!open) {
+      return;
+    }
+    if (event.key !== "Escape") {
+      return;
+    }
+
+    event.preventDefault();
+    onCancel();
+  };
+
+  $: if (open) {
+    void tick().then(() => {
+      cancelButton?.focus();
+    });
+  }
 </script>
+
+<svelte:window on:keydown={onWindowKeydown} />
 
 {#if open}
   <div class="confirm-modal-backdrop" role="presentation">
@@ -16,7 +40,7 @@
       <p class="confirm-modal-title">{title}</p>
       <p class="confirm-modal-text">{message}</p>
       <div class="confirm-modal-actions">
-        <button type="button" on:click={onCancel}>{cancelLabel}</button>
+        <button type="button" bind:this={cancelButton} on:click={onCancel}>{cancelLabel}</button>
         <button type="button" class:danger={confirmKind === "danger"} on:click={onConfirm}>{confirmLabel}</button>
       </div>
     </div>
