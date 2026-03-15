@@ -42,15 +42,27 @@
   };
 
   const getDefaultSaveDir = (): string => {
-    const lastSaveDir = localStorage.getItem(LAST_SAVE_DIR_KEY);
-    if (lastSaveDir) {
-      return lastSaveDir;
+    try {
+      const lastSaveDir = localStorage.getItem(LAST_SAVE_DIR_KEY);
+      if (lastSaveDir) {
+        return lastSaveDir;
+      }
+    } catch {
+      // 読み込み失敗時は何もしない
     }
     const currentPath = $currentFilePath;
     if (currentPath) {
       return dirname(currentPath);
     }
     return "";
+  };
+
+  const setLastSaveDir = (dir: string) => {
+    try {
+      localStorage.setItem(LAST_SAVE_DIR_KEY, dir);
+    } catch {
+      // 保存失敗時は何もしない
+    }
   };
 
   const openFromPath = async (path: string) => {
@@ -104,7 +116,7 @@
       }
 
       await saveSgfTextFile(savePath, sgfText);
-      localStorage.setItem(LAST_SAVE_DIR_KEY, dirname(savePath));
+      setLastSaveDir(dirname(savePath));
       isDirty.set(false);
       setUiInfo(`保存成功: ${basename(savePath)}`);
     } catch (error) {
@@ -123,7 +135,7 @@
       }
 
       await saveSgfTextFile(savePath, sgfText);
-      localStorage.setItem(LAST_SAVE_DIR_KEY, dirname(savePath));
+      setLastSaveDir(dirname(savePath));
       currentFilePath.set(savePath);
       openedName = basename(savePath);
       isDirty.set(false);
