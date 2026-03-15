@@ -15,6 +15,8 @@
   import { goToStart } from "./lib/stores/playback";
   import { setUiError, setUiInfo } from "./lib/stores/ui";
 
+  const LAST_SAVE_DIR_KEY = "lastSaveDir";
+
   let openedName = "";
   let showUnsavedConfirm = false;
   let pendingAction: "new" | "open" | null = null;
@@ -22,6 +24,7 @@
   const basename = (path: string): string => {
     return path.split(/[\\/]/).pop() ?? path;
   };
+
   const dirname = (path: string): string => {
     const index = path.lastIndexOf("/");
     const windowsIndex = path.lastIndexOf("\\");
@@ -36,6 +39,30 @@
       return path.slice(0, 3);
     }
     return path.slice(0, splitAt);
+  };
+
+  const getDefaultSaveDir = (): string => {
+    try {
+      const lastSaveDir = localStorage.getItem(LAST_SAVE_DIR_KEY);
+      if (lastSaveDir) {
+        return lastSaveDir;
+      }
+    } catch {
+      // 読み込み失敗時は何もしない
+    }
+    const currentPath = $currentFilePath;
+    if (currentPath) {
+      return dirname(currentPath);
+    }
+    return "";
+  };
+
+  const setLastSaveDir = (dir: string) => {
+    try {
+      localStorage.setItem(LAST_SAVE_DIR_KEY, dir);
+    } catch {
+      // 保存失敗時は何もしない
+    }
   };
 
   const openFromPath = async (path: string) => {
@@ -79,7 +106,7 @@
       const sgfText = serializeSgfCollection(normalized);
       let savePath = $currentFilePath;
       if (!savePath) {
-        const picked = await pickSaveSgfFile(openedName || undefined, dirname($currentFilePath));
+        const picked = await pickSaveSgfFile(openedName || undefined, getDefaultSaveDir());
         if (!picked) {
           return;
         }
@@ -89,6 +116,7 @@
       }
 
       await saveSgfTextFile(savePath, sgfText);
+      setLastSaveDir(dirname(savePath));
       isDirty.set(false);
       setUiInfo(`保存成功: ${basename(savePath)}`);
     } catch (error) {
@@ -101,12 +129,13 @@
       const collection = ensureCollection();
       const normalized = normalizeCollectionForSave(collection);
       const sgfText = serializeSgfCollection(normalized);
-      const savePath = await pickSaveSgfFile(openedName || undefined, dirname($currentFilePath));
+      const savePath = await pickSaveSgfFile(openedName || undefined, getDefaultSaveDir());
       if (!savePath) {
         return;
       }
 
       await saveSgfTextFile(savePath, sgfText);
+      setLastSaveDir(dirname(savePath));
       currentFilePath.set(savePath);
       openedName = basename(savePath);
       isDirty.set(false);
