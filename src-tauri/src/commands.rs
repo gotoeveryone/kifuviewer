@@ -1,7 +1,7 @@
 use crate::sgf::parser::parse_sgf_collection;
 use crate::sgf::types::SgfCollection;
 use chardetng::{EncodingDetector, Iso2022JpDetection, Utf8Detection};
-use encoding_rs::UTF_8;
+use encoding_rs::{ISO_2022_JP, UTF_8};
 use filetime::{set_file_mtime, FileTime};
 use rfd::FileDialog;
 use std::fs;
@@ -58,11 +58,27 @@ pub fn open_sgf_file(path: String) -> Result<SgfCollection, String> {
 }
 
 fn decode_sgf_bytes(bytes: &[u8]) -> String {
-    if let Ok(utf8) = std::str::from_utf8(bytes) {
-        return utf8.strip_prefix('\u{feff}').unwrap_or(utf8).to_string();
+    if bytes.windows(3).any(|window| {
+        matches!(
+            window,
+            [0x1B, b'$', b'@']
+                | [0x1B, b'$', b'B']
+                | [0x1B, b'(', b'B']
+                | [0x1B, b'(', b'J']
+                | [0x1B, b'(', b'I']
+        )
+    }) {
+        let (decoded, _, _) = ISO_2022_JP.decode(bytes);
+        return decoded.into_owned();
     }
 
-    let mut detector = EncodingDetector::new(Iso2022JpDetection::Deny);
+    if !bytes.contains(&0x1B) {
+        if let Ok(utf8) = std::str::from_utf8(bytes) {
+            return utf8.strip_prefix('\u{feff}').unwrap_or(utf8).to_string();
+        }
+    }
+
+    let mut detector = EncodingDetector::new(Iso2022JpDetection::Allow);
     detector.feed(bytes, true);
     let encoding = detector.guess(None, Utf8Detection::Allow);
     let (decoded, _, _) = encoding.decode(bytes);
@@ -101,6 +117,7 @@ pub fn take_pending_open_path() -> Option<String> {
 #[cfg(test)]
 mod tests {
     use super::decode_sgf_bytes;
+    use encoding_rs::ISO_2022_JP;
 
     #[test]
     fn decode_sgf_bytes_supports_utf8_bom() {
@@ -116,5 +133,13 @@ mod tests {
         assert!(decoded.starts_with("(;GM[1]FF[4]C["));
         assert!(decoded.contains("abc"));
         assert!(decoded.contains("def"));
+    }
+
+    #[test]
+    fn decode_sgf_bytes_supports_iso_2022_jp() {
+        let (encoded, _, _) = ISO_2022_JP.encode("(;GM[1]FF[4]C[日本])");
+        let bytes = encoded.as_ref();
+        let decoded = decode_sgf_bytes(bytes);
+        assert_eq!(decoded, "(;GM[1]FF[4]C[\u{65e5}\u{672c}])");
     }
 }
