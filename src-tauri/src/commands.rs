@@ -1,6 +1,6 @@
 use crate::sgf::parser::parse_sgf_collection;
 use crate::sgf::types::SgfCollection;
-use chardetng::EncodingDetector;
+use chardetng::{EncodingDetector, Iso2022JpDetection, Utf8Detection};
 use encoding_rs::UTF_8;
 use filetime::{set_file_mtime, FileTime};
 use rfd::FileDialog;
@@ -62,9 +62,9 @@ fn decode_sgf_bytes(bytes: &[u8]) -> String {
         return utf8.strip_prefix('\u{feff}').unwrap_or(utf8).to_string();
     }
 
-    let mut detector = EncodingDetector::new();
+    let mut detector = EncodingDetector::new(Iso2022JpDetection::Deny);
     detector.feed(bytes, true);
-    let encoding = detector.guess(None, true);
+    let encoding = detector.guess(None, Utf8Detection::Allow);
     let (decoded, _, _) = encoding.decode(bytes);
 
     if encoding == UTF_8 {
