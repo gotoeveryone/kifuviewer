@@ -4,7 +4,7 @@ Svelte + Tauri で作られた、SGF 向けの簡易棋譜ビューアです。
 
 ## Requirements
 
-- node 24.13
+- node 24.22.1+
 - cargo 1.93.1
 
 ## 起動手順（最短）
